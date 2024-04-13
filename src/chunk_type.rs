@@ -6,15 +6,15 @@ use std::{
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-enum ChunkTypeErr {
+pub enum ChunkTypeErr {
     #[error("Invalid byte: {0}, Reason: {1}")]
     InvalidByte(u8, String),
     #[error("Invalid chunk type: {0}")]
     InvalidChunkType(String),
 }
 
-#[derive(Debug, PartialEq)]
-struct ChunkType {
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub struct ChunkType {
     bytes: [u8; 4],
 }
 
@@ -65,36 +65,35 @@ impl Display for ChunkType {
     }
 }
 
+#[allow(dead_code)]
 impl ChunkType {
-    fn bytes(&self) -> [u8; 4] {
+    pub fn bytes(&self) -> [u8; 4] {
         self.bytes
     }
 
-    fn is_critical(&self) -> bool {
+    pub fn is_critical(&self) -> bool {
         self.bytes[0] & (1 << 5) == 0
     }
 
-    fn is_public(&self) -> bool {
+    pub fn is_public(&self) -> bool {
         self.bytes[1] & (1 << 5) == 0
     }
 
-    fn is_reserved_bit_valid(&self) -> bool {
+    pub fn is_reserved_bit_valid(&self) -> bool {
         self.bytes[2] & (1 << 5) == 0
     }
 
-    fn is_safe_to_copy(&self) -> bool {
+    pub fn is_safe_to_copy(&self) -> bool {
         self.bytes[3] & (1 << 5) != 0
     }
 
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         self.is_reserved_bit_valid()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use super::*;
 
     #[test]
